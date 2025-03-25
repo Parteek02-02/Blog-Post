@@ -1,33 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import axios from "axios";
 import Header from "../component/Header.jsx";  
-import '../css/BlogPostPage.css'; 
+import "../css/BlogPostPage.css"; 
 
 const BlogPost = () => {
-  const [blogContent, setBlogContent] = useState('');
+  const [title, setTitle] = useState("");
+  const [blogContent, setBlogContent] = useState("");
 
-  const handleContentChange = (e) => {
-    setBlogContent(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (blogContent.trim()) {
-      console.log('Blog submitted:', blogContent);
-      setBlogContent(''); 
-    } else {alert('Please write some content before submitting.');
+    if (!title.trim() || !blogContent.trim()) {
+      alert("Please fill in both fields before submitting.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:8080/api/models", {
+        title,
+        content: blogContent,
+      });
+
+      if (response.status === 200) {
+        alert("Blog saved successfully!");
+        
+        setTitle("");
+        setBlogContent("");
+      }
+    } catch (error) {
+      console.error("Error saving blog:", error);
+      alert("Failed to save blog.");
     }
   };
 
   return (
     <div>
-      <Header />  {/* Add the Header component here to render it */}
+      <Header />
       <div className="blog-post-container">
         <h2>Write Your Blog</h2>
         <form onSubmit={handleSubmit} className="blog-post-form">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter Blog Title"
+            className="blog-input"
+          />
           <textarea
             value={blogContent}
-            onChange={handleContentChange}
-            placeholder="Write your blog here..."
+            onChange={(e) => setBlogContent(e.target.value)}
+            placeholder="Write your blog content here..."
             className="blog-textarea"
           />
           <button type="submit" className="post-button">
