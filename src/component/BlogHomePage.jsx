@@ -8,6 +8,7 @@ const BlogHomePage = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // State for search input
 
   useEffect(() => {
     axios
@@ -24,15 +25,33 @@ const BlogHomePage = () => {
       });
   }, []);
 
+  // Filter blogs based on title only
+  const filteredBlogs = blogs.filter((blog) =>
+    blog.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="container mx-auto p-4 text-center">
+    <div className="container mx-auto p-4">
       <Header />
 
-      <h1 className="custom-title text-4xl font-bold text-black">
+      {/* Search Bar Positioned Right */}
+      <div className="mt-4 flex justify-end">
+        <input
+          type="text"
+          placeholder="Search by title..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border-2 border-blue-500 bg-gray-200 text-gray-800 p-2 rounded-md w-1/2"  // Adjust width as needed
+        />
+      </div>
+
+      {/* Mental Health Blog Title */}
+      <h1 className="custom-title text-4xl font-bold text-black mt-4 text-center">
         Mental Health Blog
       </h1>
 
-      <div className="mt-6">
+      {/* Create Blog Button */}
+      <div className="mt-6 text-center">
         <Link to="/write">
           <button className="bg-green-500 text-white px-6 py-3 rounded-md font-semibold hover:bg-green-600 transition">
             Create Blog
@@ -44,10 +63,10 @@ const BlogHomePage = () => {
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="grid gap-4 mt-16">
-        {blogs.length === 0 && !loading && !error ? (
-          <p className="text-black">No blogs available. Be the first to write one!</p>
+        {filteredBlogs.length === 0 && !loading && !error ? (
+          <p className="text-black">No blogs found matching the search.</p>
         ) : (
-          blogs.map((blog) => (
+          filteredBlogs.map((blog) => (
             <div key={blog.id} className="p-4 border rounded-md shadow-md">
               <h2 className="text-xl font-semibold">{blog.title || "Untitled"}</h2>
               <p className="text-gray-600">{blog.content?.substring(0, 100) || "No content available."}...</p>
